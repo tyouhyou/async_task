@@ -1,3 +1,9 @@
+.vscode/
+bin/
+lib/
+*.bat
+Makefile
+
 # Prerequisites
 *.d
 
