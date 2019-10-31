@@ -10,24 +10,26 @@
 #include <queue>
 #include <atomic> 
 
-namespace zb {
-    class thread_pool {
+namespace zb 
+{
+    class thread_pool 
+    {
     public:
         using ptr = std::shared_ptr<thread_pool>;
         static 
-        ptr pool_ptr(const unsigned int init_size = 64, 
+        ptr pool_ptr(const unsigned int init_size = 16, 
                      const unsigned int increase_size = 8, 
-                     const unsigned int max_size = 0) {
+                     const unsigned int max_size = 0) 
+        {
             return std::make_shared<thread_pool>(init_size, increase_size, max_size);
         }
 
         thread_pool()
             : flag_shut {false}
-            , mtx_pool {}
             , cv {}
             , pool {} 
         {
-            init(64, 8, 0);
+            init(16, 8, 0);
         }
 
         /* *
@@ -43,26 +45,27 @@ namespace zb {
                     const unsigned int increase_size = 8, 
                     const unsigned int max_size = 0) noexcept(false) 
                     : flag_shut {false}
-                    , mtx_pool {}
                     , cv {}
                     , pool {}
         {
             init(init_size, increase_size, max_size);
         }
 
-        ~thread_pool() {
+        ~thread_pool() 
+        {
             if (!pool.empty()) {
                 shutdown();
             }
         }
 
-        void shutdown() {
+        void shutdown() 
+        {
             flag_shut = true;
             cv.notify_all();
             pool.clear();
         }
 
-        template <class CALLABLE, class... ARGS>
+        template <typename CALLABLE, typename... ARGS>
         auto run(CALLABLE&& fun, ARGS&&... args) noexcept(false)
         -> std::future<decltype(fun(args...))> 
         {
@@ -82,26 +85,29 @@ namespace zb {
         }
 
     private:
-        class func_que {
+        class func_que 
+        {
         public:
             func_que()
             : mtx_{}
             , que_{}
             {}
-            ~func_que() = default;
 
-            void push(std::function<void()> fun) {
+            void push(std::function<void()> fun) 
+            {
                 std::lock_guard<std::mutex> lck(mtx_);
                 que_.push(fun);
             }
-            std::function<void()> pop() {
+            std::function<void()> pop()
+            {
                 std::lock_guard<std::mutex> lck(mtx_);
                 if (0 == que_.size()) return nullptr;
                 auto ret = que_.front();
                 que_.pop();
                 return std::move(ret);
             }
-            bool empty() {
+            bool empty()
+            {
                 std::lock_guard<std::mutex> lck(mtx_);
                 return que_.empty();
             }
@@ -112,7 +118,7 @@ namespace zb {
 
         unsigned int max_size;
         unsigned int increase_size;
-        unsigned int pool_size;     // we do not want to lock the pool every time to expand it.
+        unsigned int pool_size;     // we do not want to lock the pool every time expanding it.
         std::atomic<unsigned int> running_count;
 
         bool flag_shut;
@@ -139,7 +145,8 @@ namespace zb {
             add_thread(init_size);
         }
 
-        void add_thread(const unsigned int& size) {
+        void add_thread(const unsigned int& size)
+        {
             for (unsigned int i = 0; i < size; ++i) {
                 auto thread_ = std::make_unique<std::thread>([this](){
                     std::mutex mtx_;
@@ -161,7 +168,8 @@ namespace zb {
             }
         }
 
-        void expand() {
+        void expand()
+        {
             std::lock_guard<std::mutex> lock(mtx_pool);
             if (this->increase_size == 0 || (this->max_size != 0 && this->pool_size == this->max_size)) {
                 throw std::logic_error("No idle thread available.");
