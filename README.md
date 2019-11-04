@@ -33,8 +33,7 @@ There has three classes in this library:
 <br>Using thread_pool class is not encouraged. It is the backing class for the tasks to run on. 
 
 - ***async_task***
-<br>No instance of async_task can be created directly. You always an instance by calling the static method in task class -> task::async().  
-With the asyn_task instance, we can use the following methods:
+<br>No instance of async_task can be created directly. You always get an instance by calling the static method task::async(). With the returned asyn_task instance, we can use the following methods:  
   - await  
     async_task<return_type> await(callable, args...);
     + It runs the callable passed in, on thread from thread_pool. 
