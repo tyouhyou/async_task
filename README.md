@@ -64,7 +64,7 @@ There has three classes in this library:
     You may use async_task.result to wait for callable ends and get the result (if any).
     + Since we get the async_task instance, we can now use (async_task.)await/await_result to chain the processing order.
     
-  - wait
+  - wait  
   static void wait(async_task<T>);
     + Wait for the async_task ends. Unlike async_task::result, this method does not try to get the result from the asynchronously running function in async_task.
 
