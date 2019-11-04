@@ -4,28 +4,25 @@
 using namespace zb;
 using namespace std;
 
-
 int hello(int ini, int count);
 int goaway(int count);
 void test_expand();
 void test_inexpansible();
-void test_async();
+async_task<string> test_await_result_1();
+async_task<> test_await_result_2();
+async_task<> test_await_3();
 
-int main() 
+int main()
 {
-    // test async_task
-    test_async();
+    
+    /* test async_task with result */
+    auto tar1 = test_await_result_1();
+    auto tar2 = test_await_result_2();
+    auto tar3 = test_await_3();
 
-    // Test thread_pool 
-    test_expand();
-    try
-    {
-        test_inexpansible();
-    }
-    catch(const std::exception& e)
-    {
-        std::cerr << e.what() << '\n';
-    }
+    cout << tar1.result() << endl;
+    task::wait<void>(tar2);
+    task::wait<void>(tar3);
 }
 
 int hello(int ini, int count) {
@@ -47,7 +44,7 @@ int goaway(int count) {
     return ret;
 };
 
-void test_expand() 
+void test_expand()
 {
     cout << "test_expand" << endl;
 
@@ -63,7 +60,7 @@ void test_expand()
     pool->shutdown();
 }
 
-void test_inexpansible() 
+void test_inexpansible()
 {
     cout << "test_inexpansible" << endl;
 
@@ -79,14 +76,35 @@ void test_inexpansible()
     pool->shutdown();
 }
 
-void test_async() 
+async_task<string> test_await_result_1()
 {
-    auto t = task::async(hello, 3, 4)
-            .await<int>(goaway)
-            .await<string>([](int r){
-                return "The previous result " + to_string(r);
-            });
+    return task::async(hello, 3, 4)
+           .await_result<int>(goaway)
+           .await_result<string>([](int r){
+               return "The previous result " + to_string(r);
+           });
+}
 
-    auto r = t.result();
-    cout << "Final result : " << r << endl;
+async_task<> test_await_result_2()
+{
+    return task::async(
+        [](int a, int b)->int {
+            return a * b;
+        }, 3, 4)
+        .await_result<string>([](int r){
+            cout << "calculate a x b " << " at thread: " << this_thread::get_id() << endl;
+            return "a x b = " + to_string(r);
+        })
+        .await_result<void>([](string pr){
+            cout << "print a x b " << " at thread: " << this_thread::get_id() << endl;
+            cout << pr << endl;
+        });
+}
+
+async_task<> test_await_3()
+{
+    return task::async([]{ cout << "say hello" << endl; })
+        .await([](int a, int b){ 
+            cout << "a + b = " << a + b << " at thread: " << this_thread::get_id() << endl;
+        }, 2, 4);
 }
