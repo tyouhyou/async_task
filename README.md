@@ -19,10 +19,11 @@ auto t = task::async(hello, "world")
 
 task.wait(t);   // wait all the asychronuse processing to end.
 ```
-In the above code,<br>
-1. Run function [hello] on other thread, It task a string as argument and in this case, the argument is "world".
-2. Run function [add] on another thread after hello ends. It returns int value.
-3. Run a lambda on thread other than main thread. It waits [add] ends and takes the result of [add] as it's argument. And it returns no value.
+In the above code,  
+functions [hello] -> [add] -> lambda are running one by one on thread(s) other than main thread.
+1. Frist off, function [hello] runs. It task a string as argument and in this case, the argument is "world".
+2. After [hello] ends, [add] is called on another thread . It returns int value.
+3. The lambda expression runs after [add] ends. It takes the result of [add] as it's argument. And it returns no value.
 4. task.wait blocks the main thread and wait all the above asynchronou processing end.
 
 ## classes and API
