@@ -79,4 +79,4 @@ add methods
 
 ***NOTE***
 - compile with c++17 or above
-- This library has not been fully testes. There have bugs and, use it at your own risk.
+- This library has not been fully tested. There have bugs and use it at your own risk.
