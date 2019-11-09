@@ -14,33 +14,44 @@ async_task<> test_await_3();
 
 int main()
 {
-    
-    /* test async_task with result */
+    auto tk = task::async([]{
+        this_thread::sleep_for(1000ms);
+        cout << "I'll go second on thread " << this_thread::get_id() << endl;
+    })
+    .await([]()->void{
+        cout << "I'll go third on thread " << this_thread::get_id() << endl;
+    });
+    cout << "I'll go first on thread " << this_thread::get_id() << endl;
+
     auto tar1 = test_await_result_1();
     auto tar2 = test_await_result_2();
     auto tar3 = test_await_3();
 
-    cout << tar1.result() << endl;
+    cout << "I'm waiting on thread " << this_thread::get_id() << endl;
+
+    task::wait(tk);
     task::wait<void>(tar2);
     task::wait<void>(tar3);
+    cout << tar1.result() << endl;
+
 }
 
 int hello(int ini, int count) {
     int ret = ini;
-    std::this_thread::sleep_for(std::chrono::seconds(2));
+    std::this_thread::sleep_for(500ms);
     for (int i = 0; i < count; i++) {
-        cout << "hello, thread " << this_thread::get_id() << " => " << i << endl;
         ret ++;
     }
+    cout << "hello, ret = " << ret << " on thread " << this_thread::get_id() << endl;
     return ret;
 };
 
 int goaway(int count) {
     int ret = 1000;
     for (int i =0; i < count; i++) {
-        cout << "go away, thread " << this_thread::get_id() << " => " << i << endl;
         ret ++;
     }
+    cout << "go away, ret = " << ret << " on thread " << this_thread::get_id() << endl;
     return ret;
 };
 
@@ -92,11 +103,11 @@ async_task<> test_await_result_2()
             return a * b;
         }, 3, 4)
         .await_result<string>([](int r){
-            cout << "calculate a x b " << " at thread: " << this_thread::get_id() << endl;
+            cout << "calculate a x b " << " on thread: " << this_thread::get_id() << endl;
             return "a x b = " + to_string(r);
         })
         .await_result<void>([](string pr){
-            cout << "print a x b " << " at thread: " << this_thread::get_id() << endl;
+            cout << "print a x b " << " on thread: " << this_thread::get_id() << endl;
             cout << pr << endl;
         });
 }
@@ -105,6 +116,6 @@ async_task<> test_await_3()
 {
     return task::async([]{ cout << "say hello" << endl; })
         .await([](int a, int b){ 
-            cout << "a + b = " << a + b << " at thread: " << this_thread::get_id() << endl;
+            cout << "a + b = " << a + b << " on thread: " << this_thread::get_id() << endl;
         }, 2, 4);
 }

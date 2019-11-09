@@ -79,5 +79,6 @@ add methods
   Wait until all async_task in list end.
 
 ***NOTE***
-- compile with c++17 or above
+- Since we do not take execution context with the await funtions, when use them, make sure that the callable and argument(s) passed to await should not go out of their scope before await returns. 
+- Compile with c++17 or above
 - This library has not been fully testes. There have bugs and, use it at your own risk.

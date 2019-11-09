@@ -21,10 +21,13 @@ namespace zb
         auto await(CALLABLE&& fun, ARGS&&... args)
         -> async_task<decltype(fun(args...))>
         {
-            //TODO: if (future_.valid == false) throw
-
-            future_.wait();
-            return std::move(task::async(fun, args...));
+            using T = decltype(fun(args...));
+            auto f = [this, fun, &args...]()->T{
+                future_.wait();
+                return fun(args...);
+            };
+            async_task<T> t(thread_pool::pool_->run(f));
+            return std::move(t);
         }
 
         TRESULT result()

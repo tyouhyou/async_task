@@ -2,9 +2,7 @@
 
 
 namespace zb 
-{    
-    struct _void_ {};
-    
+{
     template<typename TRESULT>
     class async_task;
 
@@ -18,9 +16,11 @@ namespace zb
         ->async_task<decltype(fun(args...))>
         {
             using T = decltype(fun(args...));
-            async_task<T> tsk(task::pool_->run(fun, args...));
+            async_task<T> tsk(thread_pool::pool_->run(fun, args...));
             return std::move(tsk);
         }
+
+        // TODO: define iwait and use it in wait, wait_any, wait_all
 
         template <typename T>
         static void wait(const async_task<T> &tk)

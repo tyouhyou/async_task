@@ -24,6 +24,8 @@ namespace zb
             return std::make_shared<thread_pool>(init_size, increase_size, max_size);
         }
 
+        static ptr pool_;
+
         thread_pool()
             : flag_shut {false}
             , cv {}
