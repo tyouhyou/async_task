@@ -1,4 +1,4 @@
-#ASYNC_TASK
+# ASYNC_TASK
 
 A simple c++ asynchonous programming library.
 
@@ -19,10 +19,11 @@ auto t = task::async(hello, "world")
 
 task.wait(t);   // wait all the asychronuse processing to end.
 ```
-In the above code,<br>
-1. Run function [hello] on other thread, It task a string as argument and in this case, the argument is "world".
-2. Run function [add] on another thread after hello ends. It returns int value.
-3. Run a lambda on thread other than main thread. It waits [add] ends and takes the result of [add] as it's argument. And it returns no value.
+In the above code,  
+functions [hello] -> [add] -> lambda are running one by one on thread(s) other than the main thread.
+1. Frist off, function [hello] runs. It task a string as argument and in this case, the argument is "world".
+2. After [hello] ends, [add] is called on another thread . It returns int value.
+3. The lambda expression runs after [add] ends. It takes the result of [add] as it's argument. And it returns no value.
 4. task.wait blocks the main thread and wait all the above asynchronou processing end.
 
 ## classes and API
@@ -32,8 +33,7 @@ There has three classes in this library:
 <br>Using thread_pool class is not encouraged. It is the backing class for the tasks to run on. 
 
 - ***async_task***
-<br>No instance of async_task can be created directly. You always an instance by calling the static method in task class -> task::async().<br>
-With the asyn_task instance, we can use the following methods:
+<br>No instance of async_task can be created directly. You always get an instance by calling the static method task::async(). With the returned asyn_task instance, we can use the following methods:  
   - await  
     async_task<return_type> await(callable, args...);
     + It runs the callable passed in, on thread from thread_pool. 
@@ -56,7 +56,6 @@ With the asyn_task instance, we can use the following methods:
     + The method should be call 0 or 1 time. Call it multi-times may cause exception.
 
 - ***task***
-  <br>
   - async  
   static async_task<return_value> async(callable, args...);
     + This method will create an async_task<return_type> instance.
@@ -64,10 +63,10 @@ With the asyn_task instance, we can use the following methods:
     + While the async_task instance returned, the callable may not have finished yet.
     You may use async_task.result to wait for callable ends and get the result (if any).
     + Since we get the async_task instance, we can now use (async_task.)await/await_result to chain the processing order.
-  <br /><br />
-  - wait
+    
+  - wait  
   static void wait(async_task<T>);
-  + Wait for the async_task ends. Unlike async_task::result, this method does not try to get the result from the asynchronously running function in async_task.
+    + Wait for the async_task ends. Unlike async_task::result, this method does not try to get the result from the asynchronously running function in async_task.
 
 Refer to test.cpp for general usage sample.
 
