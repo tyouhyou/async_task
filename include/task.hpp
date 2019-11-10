@@ -16,7 +16,7 @@ namespace zb
         ->async_task<decltype(fun(args...))>
         {
             using T = decltype(fun(args...));
-            async_task<T> tsk(thread_pool::pool_->run(fun, args...));
+            async_task<T> tsk(task::pool_->run(fun, args...));
             return std::move(tsk);
         }
 

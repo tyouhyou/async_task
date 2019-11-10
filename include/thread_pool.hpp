@@ -24,8 +24,6 @@ namespace zb
             return std::make_shared<thread_pool>(init_size, increase_size, max_size);
         }
 
-        static ptr pool_;
-
         thread_pool()
             : flag_shut {false}
             , cv {}
@@ -69,7 +67,7 @@ namespace zb
 
         template <typename CALLABLE, typename... ARGS>
         auto run(CALLABLE&& fun, ARGS&&... args) noexcept(false)
-        -> std::future<decltype(fun(args...))> 
+        -> std::shared_future<decltype(fun(args...))> 
         {
             if (static_cast<unsigned int>(running_count) >= pool_size) {
                 expand();
