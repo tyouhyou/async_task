@@ -7,7 +7,6 @@ namespace zb
     template<typename TRESULT = void>
     class async_task
     {
-        friend class task;
     public:
         
         template<typename RET, typename CALLABLE>
@@ -44,6 +43,8 @@ namespace zb
         }
 
     private:
+        friend class task;
+        
         async_task() = delete;
 
         async_task(std::shared_future<TRESULT> rst)
